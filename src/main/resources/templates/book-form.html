@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Книга</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f3f5f8;
+            color: #273449;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #243b64;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd3df;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #315b9a;
+        }
+
+        .error {
+            display: block;
+            margin-top: 5px;
+            color: #c23b3b;
+            font-size: 13px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button, .back-button {
+            display: inline-block;
+            padding: 11px 18px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            background: #315b9a;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-button {
+            background: #68758a;
+        }
+
+        button:hover, .back-button:hover {
+            opacity: 0.88;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1 th:text="${pageTitle}">Книга</h1>
+
+    <form th:action="@{/books/save}"
+          th:object="${book}"
+          method="post">
+
+        <input type="hidden" th:field="*{id}">
+
+        <div class="form-group">
+            <label for="title">Название книги</label>
+            <input type="text"
+                   id="title"
+                   th:field="*{title}"
+                   placeholder="Введите название книги">
+            <span class="error"
+                  th:if="${#fields.hasErrors('title')}"
+                  th:errors="*{title}"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="publishingHouse">Издательство</label>
+            <input type="text"
+                   id="publishingHouse"
+                   th:field="*{publishingHouse}"
+                   placeholder="Введите издательство">
+            <span class="error"
+                  th:if="${#fields.hasErrors('publishingHouse')}"
+                  th:errors="*{publishingHouse}"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="issueDate">Дата выдачи</label>
+            <input type="date"
+                   id="issueDate"
+                   th:field="*{issueDate}">
+        </div>
+
+        <div class="form-group">
+            <label for="studentName">ФИО студента</label>
+            <input type="text"
+                   id="studentName"
+                   th:field="*{studentName}"
+                   placeholder="Введите ФИО студента">
+        </div>
+
+        <div class="form-group">
+            <label for="returnDate">Дата возврата</label>
+            <input type="date"
+                   id="returnDate"
+                   th:field="*{returnDate}">
+        </div>
+
+        <div class="buttons">
+            <button type="submit">Сохранить</button>
+            <a class="back-button" th:href="@{/books}">Назад</a>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Библиотека — список книг</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+            background: #f3f5f8;
+            color: #243b64;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 25px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 15px;
+            font-size: 30px;
+            color: #243b64;
+        }
+
+        .subtitle {
+            margin-bottom: 20px;
+            color: #526987;
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            min-width: 150px;
+            padding: 11px;
+            border: 1px solid #cbd3df;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #243b64;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+        }
+
+        .search-form input[type="date"] {
+            flex: 1;
+        }
+
+        button, .button {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .search-button {
+            background: #315b9a;
+        }
+
+        .reset-button {
+            background: #68758a;
+        }
+
+        .add-button {
+            background: #21834d;
+            margin-bottom: 15px;
+        }
+
+        .edit-button {
+            background: #d88a19;
+            padding: 8px 12px;
+        }
+
+        .delete-button {
+            background: #c63838;
+            padding: 8px 12px;
+        }
+
+        button:hover, .button:hover {
+            opacity: 0.88;
+        }
+
+        .message {
+            margin: 10px 0 15px;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .success {
+            color: #176c3a;
+            background: #e3f5e9;
+        }
+
+        .error {
+            color: #b42323;
+            background: #fde8e8;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border: 1px solid #d5deea;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #eaf0f8;
+            color: #243b64;
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f7f9fc;
+        }
+
+        .actions {
+            white-space: nowrap;
+        }
+
+        .empty-row {
+            padding: 25px;
+            text-align: center;
+            color: #68758a;
+        }
+
+        .count {
+            margin-top: 12px;
+            color: #526987;
+            font-size: 13px;
+        }
+
+        .chart {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid #d5deea;
+            border-radius: 7px;
+            background: #fcfdff;
+        }
+
+        .chart h2 {
+            margin: 0 0 12px;
+            font-size: 18px;
+            color: #243b64;
+        }
+
+        .chart-description {
+            margin-bottom: 15px;
+            color: #68758a;
+            font-size: 12px;
+        }
+
+        .chart-list {
+            max-height: 310px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .chart-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 19px;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+
+        .chart-date {
+            width: 55px;
+            flex-shrink: 0;
+            color: #526987;
+        }
+
+        .bar-background {
+            flex: 1;
+            height: 13px;
+            overflow: hidden;
+            border-radius: 3px;
+            background: #eaf0f8;
+        }
+
+        .bar {
+            height: 100%;
+            border-radius: 3px;
+            background: #315b9a;
+        }
+
+        .chart-value {
+            width: 20px;
+            text-align: right;
+            color: #243b64;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            .search-form {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .search-form input,
+            .search-form button,
+            .search-form .button {
+                width: 100%;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Информационная система «Библиотека»</h1>
+    <div class="subtitle">Список книг и информация об их выдаче</div>
+
+    <!-- Поиск и фильтрация -->
+    <form class="search-form" th:action="@{/books}" method="get">
+
+        <input type="text"
+               name="publishingHouse"
+               placeholder="Введите издательство"
+               th:value="${publishingHouse}">
+
+        <label for="startDate">С:</label>
+        <input type="date"
+               id="startDate"
+               name="startDate"
+               th:value="${startDate != null ? startDate : ''}">
+
+        <label for="endDate">По:</label>
+        <input type="date"
+               id="endDate"
+               name="endDate"
+               th:value="${endDate != null ? endDate : ''}">
+
+        <button type="submit" class="search-button">Найти</button>
+        <a th:href="@{/books}" class="button reset-button">Сбросить</a>
+    </form>
+
+    <!-- Добавление книги -->
+    <a th:href="@{/books/new}" class="button add-button">+ Добавить книгу</a>
+
+    <!-- Сообщения -->
+    <div th:if="${successMessage}"
+         class="message success"
+         th:text="${successMessage}">
+    </div>
+
+    <div th:if="${dateError}"
+         class="message error"
+         th:text="${dateError}">
+    </div>
+
+    <!-- Таблица книг -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название книги</th>
+                <th>Издательство</th>
+                <th>Дата выдачи</th>
+                <th>ФИО студента</th>
+                <th>Дата возврата</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:if="${books == null or #lists.isEmpty(books)}">
+                <td colspan="7" class="empty-row">Книги не найдены</td>
+            </tr>
+
+            <tr th:each="book : ${books}">
+                <td th:text="${book.id}"></td>
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.publishingHouse}"></td>
+
+                <td th:text="${book.issueDate != null ? #temporals.format(book.issueDate, 'dd.MM.yyyy') : '—'}"></td>
+
+                <td th:text="${book.studentName != null and !book.studentName.isBlank() ? book.studentName : '—'}"></td>
+
+                <td th:text="${book.returnDate != null ? #temporals.format(book.returnDate, 'dd.MM.yyyy') : '—'}"></td>
+
+                <td class="actions">
+                    <a class="button edit-button"
+                       th:href="@{/books/edit/{id}(id=${book.id})}">
+                        Изменить
+                    </a>
+
+                    <form th:action="@{/books/delete/{id}(id=${book.id})}"
+                          method="post"
+                          style="display: inline;"
+                          onsubmit="return confirm('Удалить эту книгу?');">
+                        <button type="submit" class="delete-button">
+                            Удалить
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="count">
+        Количество книг в таблице:
+        <span th:text="${books != null ? #lists.size(books) : 0}">0</span>
+    </div>
+
+    <!-- Гистограмма выдач за последние 30 дней -->
+    <div class="chart" th:if="${histogram != null}">
+        <h2>Выдача книг за последние 30 дней</h2>
+        <div class="chart-description">
+            Количество записей о выдаче по датам, включая дни без выдач.
+        </div>
+
+        <div class="chart-list">
+            <div class="chart-row"
+                 th:each="entry : ${histogram}">
+
+                <div class="chart-date"
+                     th:text="${#temporals.format(entry.key, 'dd.MM')}">
+                    01.09
+                </div>
+
+                <div class="bar-background">
+                    <div class="bar"
+                         th:style="'width:' + (${maxCount != null and maxCount > 0 ? entry.value * 100.0 / maxCount : 0}) + '%'">
+                    </div>
+                </div>
+
+                <div class="chart-value"
+                     th:text="${entry.value}">
+                    0
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
